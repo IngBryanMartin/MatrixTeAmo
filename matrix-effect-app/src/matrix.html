@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Effect</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: black;
+        }
+        body {
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: block;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let text = 'TE AMO';
+        let fontSize, textWidth, columnsPerText, columns, activeDrops;
+
+        function getResponsiveFontSize() {
+            if (window.innerWidth < 400) return 14;
+            if (window.innerWidth < 600) return 18;
+            return 28.6;
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            fontSize = getResponsiveFontSize();
+            ctx.font = `${fontSize}px monospace`;
+            textWidth = ctx.measureText(text).width;
+            columnsPerText = Math.ceil(textWidth / fontSize);
+            columns = Math.floor(canvas.width / fontSize);
+            activeDrops = [];
+        }
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', resizeCanvas);
+        resizeCanvas();
+
+        function isRangeFree(col) {
+            for (const drop of activeDrops) {
+                if (
+                    (col < drop.col + columnsPerText) &&
+                    (col + columnsPerText > drop.col)
+                ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = `${fontSize}px monospace`;
+
+            for (let i = 0; i <= columns - columnsPerText; i++) {
+                if (isRangeFree(i) && Math.random() > 0.97) {
+                    activeDrops.push({ col: i, y: 0 });
+                }
+            }
+
+            for (let k = activeDrops.length - 1; k >= 0; k--) {
+                const drop = activeDrops[k];
+                ctx.fillStyle = '#ff69b4';
+                const x = drop.col * fontSize;
+                const y = drop.y * fontSize;
+                ctx.fillText(text, x, y);
+
+                drop.y++;
+
+                if (y > canvas.height) {
+                    activeDrops.splice(k, 1);
+                }
+            }
+        }
+
+        setInterval(draw, 75);
+    </script>
+</body>
+</html>
