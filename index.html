@@ -64,19 +64,25 @@
         resizeCanvas();
 
         function isRangeFree(col) {
-            for (const drop of activeDrops) {
-                if (
-                    (col < drop.col + columnsPerText) &&
-                    (col + columnsPerText > drop.col)
-                ) {
-                    return false;
-                }
+    for (const drop of activeDrops) {
+        // Si hay un barrido en el rango...
+        if (
+            (col < drop.col + columnsPerText) &&
+            (col + columnsPerText > drop.col)
+        ) {
+            // ...pero ya pasó la mitad de la pantalla, permitimos uno nuevo
+            if (drop.y * fontSize > canvas.height / 2) {
+                continue;
             }
-            return true;
+            // Si no, no permitimos
+            return false;
         }
+    }
+    return true;
+}
 
         function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.font = `${fontSize}px monospace`;
 
@@ -101,7 +107,7 @@
             }
         }
 
-        setInterval(draw, 62);
+        setInterval(draw, 60);
     </script>
 </body>
 </html>
